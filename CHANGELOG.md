@@ -8,6 +8,8 @@ once a first tagged release is cut.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-28
+
 ### Added
 
 - Initial extraction of `9vcs`'s `identity` package into its own
