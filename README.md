@@ -1,5 +1,8 @@
 # 9auth
 
+[![CI (master)](https://github.com/sandgorgon/9auth/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/sandgorgon/9auth/actions/workflows/ci.yml?query=branch%3Amaster)
+[![CI (develop)](https://github.com/sandgorgon/9auth/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/sandgorgon/9auth/actions/workflows/ci.yml?query=branch%3Adevelop)
+
 A pure-Go, zero-dependency identity and peer-trust primitive shared
 across every 9-family program (`9vcs`, `9sh`, and others to come):
 one per-install Ed25519 identity, one trust decision, instead of a
