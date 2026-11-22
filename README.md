@@ -17,7 +17,9 @@ go get github.com/sandgorgon/9auth
 - `Identity` — a long-lived Ed25519 keypair wrapped in a minimal
   self-signed X.509 certificate, persisted at
   `~/.config/9/identity.{key,cert}`. `Load()` generates one on first
-  use.
+  use. `LoadFrom(dir)` does the same in an explicit directory, for a
+  service whose identity belongs to it rather than to the user running
+  it (a daemon keeping its key in its own data directory).
 - `Fingerprint(pub)` / `(*Identity).Fingerprint()` / `FingerprintOf(cert)`
   — a stable SHA-256-of-public-key identifier for out-of-band
   exchange ("what's your fingerprint?").

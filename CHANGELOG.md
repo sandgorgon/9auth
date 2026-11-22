@@ -8,6 +8,15 @@ once a first tagged release is cut.
 
 ## [Unreleased]
 
+### Added
+
+- `LoadFrom(dir)`: loads or generates an identity in an explicit
+  directory instead of the shared `~/.config/9`, for services whose
+  key belongs to the service rather than to the user running it (a
+  daemon keeping its identity in its own data directory). Creates the
+  directory with mode 0700 if needed, and never runs the legacy 9vcs
+  migration that `Load()` does. Needed by `polydb`'s server.
+
 ## [0.1.0] - 2026-08-28
 
 ### Added
