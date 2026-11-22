@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net"
+	"os"
 	"path/filepath"
 	"sync"
 	"testing"
@@ -85,6 +86,68 @@ func TestLoadPersistsAndReloads(t *testing.T) {
 	}
 	if first.Fingerprint() != second.Fingerprint() {
 		t.Fatalf("reload produced a different fingerprint: %s vs %s", first.Fingerprint(), second.Fingerprint())
+	}
+}
+
+func TestLoadFromCreatesDirAndReloads(t *testing.T) {
+	// Point the per-user config dir somewhere empty, to prove LoadFrom
+	// never touches it.
+	userConfig := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", userConfig)
+	t.Setenv("HOME", userConfig)
+
+	dir := filepath.Join(t.TempDir(), "var", "lib", "svc")
+
+	first, err := LoadFrom(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if perm := info.Mode().Perm(); perm != 0o700 {
+		t.Errorf("dir mode = %o, want 700", perm)
+	}
+	keyInfo, err := os.Stat(filepath.Join(dir, "identity.key"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if perm := keyInfo.Mode().Perm(); perm != 0o600 {
+		t.Errorf("key mode = %o, want 600", perm)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "identity.cert")); err != nil {
+		t.Fatal(err)
+	}
+
+	second, err := LoadFrom(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Fingerprint() != second.Fingerprint() {
+		t.Fatalf("reload produced a different fingerprint: %s vs %s", first.Fingerprint(), second.Fingerprint())
+	}
+
+	entries, err := os.ReadDir(userConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 0 {
+		t.Errorf("LoadFrom wrote to the per-user config dir: %v", entries)
+	}
+}
+
+func TestLoadFromDifferentDirsGiveDifferentIdentities(t *testing.T) {
+	a, err := LoadFrom(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := LoadFrom(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.Fingerprint() == b.Fingerprint() {
+		t.Fatal("two different directories produced the same identity")
 	}
 }
 
