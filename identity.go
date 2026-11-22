@@ -96,6 +96,21 @@ func Load() (*Identity, error) {
 	return loadFrom(keyPath, certPath)
 }
 
+// LoadFrom is Load against an explicit directory instead of the shared
+// per-user ConfigDir: it loads dir/identity.{key,cert}, generating and
+// persisting a new identity on first use. It is for identities that belong
+// to a service rather than to the user running it — a daemon whose key
+// lives in its own data directory (say /var/lib/<service>) and must not
+// change with whichever account happens to start it. dir is created with
+// mode 0700 if it doesn't exist. Unlike Load, it never looks for a legacy
+// 9vcs identity to migrate.
+func LoadFrom(dir string) (*Identity, error) {
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return nil, fmt.Errorf("auth: creating %s: %w", dir, err)
+	}
+	return loadFrom(filepath.Join(dir, "identity.key"), filepath.Join(dir, "identity.cert"))
+}
+
 // loadFrom is Load's file logic against explicit paths, split out so tests
 // can exercise it without touching the real user config directory.
 func loadFrom(keyPath, certPath string) (*Identity, error) {
